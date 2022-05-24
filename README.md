@@ -13,6 +13,6 @@ npm run serve
 
 ## Frameworks utilizados:
 ```
-- VueJs
-- Bootstrap 
+- [x] VueJs
+- [x] Bootstrap 
 ```
