@@ -12,7 +12,5 @@ npm run serve
 ```
 
 ## Frameworks utilizados:
-```
-- [x] VueJs
-- [x] Bootstrap 
-```
+- VueJs
+- Bootstrap 
