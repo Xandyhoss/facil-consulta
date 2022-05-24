@@ -10,3 +10,9 @@ npm install
 ```
 npm run serve
 ```
+
+## Frameworks utilizados:
+```
+- VueJs
+- Bootstrap 
+```
