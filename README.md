@@ -1,12 +1,12 @@
 # Teste Front-End Fácil Consulta
 
-##Instalando dependências:
+## Instalando dependências:
 
 ```
 npm install
 ```
 
-##Rodando o projeto:
+## Rodando o projeto:
 ```
 npm run serve
 ```
