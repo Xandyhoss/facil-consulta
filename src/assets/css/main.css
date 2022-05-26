@@ -1,0 +1,31 @@
+:root{
+    --primary-0: #483698;
+    --secondary-0: #FFFFFF;
+    --secondary-1: #F9F9F9;
+    --secondary-3: #B9B9B9;
+    --secondary-4: #8A8A8A;
+    --secondary-8: #282828;
+    --cta-1: #FFE766;
+    --cta-0: #FBDE40;
+    --danger: #DC3545;
+    --transparent: none;
+
+    --comfortaa: 'Comfortaa';
+    --open-sans: 'Open Sans';
+}
+
+@font-face {
+    font-family: 'Comfortaa';
+    src: url('../fonts/Comfortaa-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
