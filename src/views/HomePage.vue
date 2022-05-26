@@ -1,6 +1,6 @@
 <template>
   <div
-    class="container-fluid background p-0 overflow-y col-12 align-items-end align-items-sm-center"
+    class="container-fluid background p-0 col-12 align-items-end align-items-sm-center"
   >
     <AboutProfessional />
   </div>
