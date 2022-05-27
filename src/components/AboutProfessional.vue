@@ -1,6 +1,6 @@
 <template>
   <div
-    class="about-professional col-md-10 col-lg-10 pt-5 px-4 px-sm-0 ps-sm-5 pb-5 shadow"
+    class="content col-md-10 col-lg-10 pt-5 px-4 px-sm-0 ps-sm-5 pb-5 shadow"
   >
     <div class="row col-12">
       <h1 class="title mb-4">Sobre o profissional</h1>
@@ -24,6 +24,7 @@
             name="cpf"
             class="form-control field"
             placeholder="Digite um CPF"
+            v-mask="'###.###.###-##'"
           />
         </div>
         <div class="form-group mb-4 col-8">
@@ -33,6 +34,7 @@
             name="cel"
             class="form-control field"
             placeholder="(00) 0 0000-0000"
+            v-mask="['(##) ####-####', '(##) #####-####']"
           />
         </div>
         <div class="row mb-5">
@@ -56,18 +58,18 @@
         <div class="row mb-3">
           <div class="col-9">
             <div class="progress">
-              <div
-                class="progress-bar w-50"
-                role="progressbar"
-                aria-valuenow="50"
-                aria-valuemin="0"
-                aria-valuemax="100"
-              ></div>
+              <div class="progress-bar w-50" role="progressbar"></div>
             </div>
           </div>
           <div class="col progress-text">1 de 2</div>
         </div>
-        <NextButton buttonText="PRÓXIMO" class="col-12" />
+        <router-link to="/about-attendance">
+          <NextButton
+            buttonText="PRÓXIMO"
+            bgColor="--primary-0"
+            class="col-12"
+          />
+        </router-link>
       </div>
       <div class="col-6 d-none d-sm-block">
         <img
@@ -81,8 +83,10 @@
 
 <script>
 import NextButton from '@/components/NextButton.vue';
+import { mask } from 'vue-the-mask';
 export default {
   components: { NextButton },
+  directives: { mask },
   setup() {
     return {};
   },
@@ -90,12 +94,7 @@ export default {
 </script>
 
 <style scoped>
-.img {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.about-professional {
+.content {
   background: var(--secondary-1);
   height: auto;
   border-radius: 25px;
@@ -141,7 +140,7 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .about-professional {
+  .content {
     border-radius: 25px 25px 0px 0px;
   }
 }

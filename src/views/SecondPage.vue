@@ -2,14 +2,14 @@
   <div
     class="container-fluid background p-0 py-sm-4 col-12 align-items-end align-items-sm-center"
   >
-    <AboutProfessional />
+    <AboutAttendance />
   </div>
 </template>
 
 <script>
-import AboutProfessional from '@/components/AboutProfessional.vue';
+import AboutAttendance from '@/components/AboutAttendance.vue';
 export default {
-  components: { AboutProfessional },
+  components: { AboutAttendance },
   setup() {
     return {};
   },
