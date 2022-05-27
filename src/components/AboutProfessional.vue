@@ -66,6 +66,7 @@
         <router-link to="/about-attendance">
           <NextButton
             buttonText="PRÓXIMO"
+            textColor="white"
             bgColor="--primary-0"
             class="col-12"
           />

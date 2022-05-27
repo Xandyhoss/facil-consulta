@@ -2,16 +2,16 @@
   <div
     class="container-fluid background p-0 py-sm-4 col-12 align-items-end align-items-sm-center"
   >
-    <topBackButton linkTo="/" />
-    <AboutAttendance />
+    <topBackButton linkTo="/about-attendance" />
+    <RegisterReview />
   </div>
 </template>
 
 <script>
-import AboutAttendance from '@/components/AboutAttendance.vue';
+import RegisterReview from '@/components/RegisterReview.vue';
 import topBackButton from '@/components/topBackButton.vue';
 export default {
-  components: { AboutAttendance, topBackButton },
+  components: { RegisterReview, topBackButton },
   setup() {
     return {};
   },

@@ -69,7 +69,7 @@
           </div>
           <div
             class="form-check shadow-sm mb-5 py-3"
-            v-bind:class="{ cardChecked: cardChecked }"
+            v-bind:class="{ 'card-checked': cardChecked }"
           >
             <div class="row">
               <div class="col-2">
@@ -133,9 +133,10 @@
           </div>
           <div class="col progress-text">2 de 2</div>
         </div>
-        <router-link to="/">
+        <router-link to="/register-review">
           <NextButton
             buttonText="PRÓXIMO"
+            textColor="white"
             bgColor="--primary-0"
             class="col-12"
           />
@@ -216,7 +217,7 @@ export default {
   overflow: hidden;
 }
 
-.cardChecked {
+.card-checked {
   transition: 0.5s;
   max-height: 500px;
 }
@@ -235,7 +236,6 @@ export default {
   font-weight: bold;
   color: var(--primary-0);
 }
-
 @media (max-width: 576px) {
   .content {
     border-radius: 25px 25px 0px 0px;

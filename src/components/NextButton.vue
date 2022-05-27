@@ -6,10 +6,13 @@
 
 <script>
 export default {
-  props: ['buttonText', 'bgColor'],
+  props: ['buttonText', 'bgColor', 'textColor'],
   computed: {
     style() {
-      return { 'background-color': 'var(' + this.bgColor + ')' };
+      return {
+        'background-color': 'var(' + this.bgColor + ')',
+        color: this.textColor,
+      };
     },
   },
 };
@@ -17,7 +20,7 @@ export default {
 
 <style scoped>
 .button {
-  color: white;
+  font-size: 16px;
   font-family: var(--comfortaa);
   border: none;
   height: 40px;
