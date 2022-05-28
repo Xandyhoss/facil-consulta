@@ -14,18 +14,37 @@
             type="text"
             name="name"
             class="form-control field col-12"
+            v-bind:class="{ error: nameError }"
             placeholder="Digite o nome completo"
+            v-model="name"
           />
+          <small
+            v-for="error of v$.name.$errors"
+            :key="error.$uid"
+            class="error-text"
+          >
+            {{ error.$message }}
+          </small>
         </div>
+
         <div class="form-group mb-4 col-8">
           <label for="cpf" class="label mb-2">CPF*</label>
           <input
             type="text"
             name="cpf"
             class="form-control field"
+            v-bind:class="{ error: cpfError }"
             placeholder="Digite um CPF"
             v-mask="'###.###.###-##'"
+            v-model="cpf"
           />
+          <small
+            v-for="error of v$.cpf.$errors"
+            :key="error.$uid"
+            class="error-text"
+          >
+            {{ error.$message }}
+          </small>
         </div>
         <div class="form-group mb-4 col-8">
           <label for="cel" class="label mb-2">Número de celular*</label>
@@ -33,25 +52,60 @@
             type="text"
             name="cel"
             class="form-control field"
+            v-bind:class="{ error: telError }"
             placeholder="(00) 0 0000-0000"
             v-mask="['(##) ####-####', '(##) #####-####']"
+            v-model="tel"
           />
+          <small
+            v-for="error of v$.tel.$errors"
+            :key="error.$uid"
+            class="error-text"
+          >
+            {{ error.$message }}
+          </small>
         </div>
         <div class="row mb-5">
           <div class="col">
             <div class="form-group col-12">
               <label for="state" class="label mb-2">Estado*</label>
-              <select class="form-select field" name="state">
-                <option selected class="option">Selecione</option>
+              <select
+                class="form-select field"
+                v-bind:class="{ error: stateError }"
+                name="state"
+                v-model="state"
+              >
+                <option disabled value="" class="option">Selecione</option>
+                <option class="option">Estado</option>
               </select>
+              <small
+                v-for="error of v$.state.$errors"
+                :key="error.$uid"
+                class="error-text"
+              >
+                {{ error.$message }}
+              </small>
             </div>
           </div>
           <div class="col">
             <div class="form-group col-12">
               <label for="city" class="label mb-2">Cidade*</label>
-              <select class="form-select field" name="city">
-                <option selected class="option">Selecione</option>
+              <select
+                class="form-select field"
+                v-bind:class="{ error: cityError }"
+                name="city"
+                v-model="city"
+              >
+                <option disabled value="" class="option">Selecione</option>
+                <option class="option">Cidade</option>
               </select>
+              <small
+                v-for="error of v$.city.$errors"
+                :key="error.$uid"
+                class="error-text"
+              >
+                {{ error.$message }}
+              </small>
             </div>
           </div>
         </div>
@@ -63,14 +117,14 @@
           </div>
           <div class="col progress-text">1 de 2</div>
         </div>
-        <router-link to="/about-attendance">
-          <NextButton
-            buttonText="PRÓXIMO"
-            textColor="white"
-            bgColor="--primary-0"
-            class="col-12"
-          />
-        </router-link>
+
+        <NextButton
+          buttonText="PRÓXIMO"
+          textColor="white"
+          bgColor="--primary-0"
+          class="col-12"
+          @click="nextPage()"
+        />
       </div>
       <div class="col-6 d-none d-sm-block">
         <img
@@ -85,11 +139,128 @@
 <script>
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
+
+import useVuelidate from '@vuelidate/core';
+import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
+
 export default {
   components: { NextButton },
   directives: { mask },
+
   setup() {
-    return {};
+    return { v$: useVuelidate() };
+  },
+  data() {
+    return {
+      name: '',
+      cpf: '',
+      tel: '',
+      state: '',
+      city: '',
+      nameError: false,
+      cpfError: false,
+      telError: false,
+      stateError: false,
+      cityError: false,
+    };
+  },
+  validations() {
+    return {
+      name: {
+        required: helpers.withMessage(
+          'Este campo não pode estar em branco',
+          required
+        ),
+        $lazy: true,
+        minLengthValue: helpers.withMessage(
+          'Este campo deve possuir entre 3 e 48 caracteres',
+          minLength(3)
+        ),
+        maxLengthValue: helpers.withMessage(
+          'Este campo deve possuir no máximo 48 caracteres',
+          maxLength(48)
+        ),
+      },
+      cpf: {
+        required: helpers.withMessage(
+          'Este campo não pode estar em branco',
+          required
+        ),
+        minLengthValue: helpers.withMessage(
+          'Número de CPF incompleto',
+          minLength(14)
+        ),
+      },
+      tel: {
+        required: helpers.withMessage(
+          'Este campo não pode estar em branco',
+          required
+        ),
+        minLengthValue: helpers.withMessage(
+          'Número de telefone/celular incompleto',
+          minLength(14)
+        ),
+      },
+      state: {
+        required: helpers.withMessage('Selecione um Estado', required),
+      },
+      city: {
+        required: helpers.withMessage('Selecione uma Cidade', required),
+      },
+    };
+  },
+  methods: {
+    async nextPage() {
+      const result = await this.v$.$validate();
+      if (!result) {
+        return this.verifyFields();
+      }
+      this.$router.push('/about-attendance');
+    },
+    async verifyFields() {
+      this.v$.name.$errors[0]
+        ? (this.nameError = true)
+        : (this.nameError = false);
+
+      this.v$.cpf.$errors[0] ? (this.cpfError = true) : (this.cpfError = false);
+
+      this.v$.tel.$errors[0] ? (this.telError = true) : (this.telError = false);
+
+      this.v$.state.$errors[0]
+        ? (this.stateError = true)
+        : (this.stateError = false);
+
+      this.v$.city.$errors[0]
+        ? (this.cityError = true)
+        : (this.cityError = false);
+    },
+  },
+  watch: {
+    name(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
+    cpf(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
+    tel(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
+    state(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
+    city(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
   },
 };
 </script>
@@ -138,6 +309,14 @@ export default {
   font-family: var(--comfortaa);
   font-weight: bold;
   color: var(--primary-0);
+}
+
+.error-text {
+  color: var(--danger);
+}
+
+.error {
+  border: 1px solid var(--danger);
 }
 
 @media (max-width: 576px) {
