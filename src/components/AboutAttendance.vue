@@ -12,30 +12,60 @@
           <label for="specialty" class="label mb-2"
             >Especialidade principal*</label
           >
-          <select class="form-select field" name="specialty">
-            <option selected class="option">Selecione</option>
+          <select
+            class="form-select field"
+            v-bind:class="{ error: specialtyError }"
+            name="specialty"
+            value=""
+            v-model="specialty"
+          >
+            <option disabled value="" class="option">Selecione</option>
+            <option class="option">Especialidade</option>
           </select>
+          <small
+            v-for="error of v$.specialty.$errors"
+            :key="error.$uid"
+            class="error-text"
+          >
+            {{ error.$message }}
+          </small>
         </div>
         <div class="form-group mb-4 col-8">
-          <label for="value" class="label mb-2"
+          <label for="price" class="label mb-2"
             >Informe o preço da consulta*</label
           >
-          <div class="input-group mb-3">
-            <span class="input-group-text field-left">R$</span>
+          <div class="input-group">
+            <span
+              class="input-group-text field-left"
+              v-bind:class="{ error: priceError, 'bg-danger': priceError }"
+              >R$</span
+            >
             <input
-              name="value"
+              name="price"
               type="text"
               class="form-control field"
+              v-bind:class="{ error: priceError }"
               placeholder="Valor"
               v-mask="['##,##', '###,##']"
+              v-model="price"
             />
           </div>
+          <small
+            v-for="error of v$.price.$errors"
+            :key="error.$uid"
+            class="error-text"
+          >
+            {{ error.$message }}
+          </small>
         </div>
         <div class="form-group mb-4">
           <label for="payment" class="label mb-4"
             >Formas de pagamento da consulta*</label
           >
-          <div class="form-check shadow-sm mb-3 py-3">
+          <div
+            class="form-check shadow-sm mb-3 py-3"
+            v-bind:class="{ error: paymentError }"
+          >
             <div class="row">
               <div class="col-2">
                 <input
@@ -50,7 +80,10 @@
               </div>
             </div>
           </div>
-          <div class="form-check shadow-sm mb-3 py-3">
+          <div
+            class="form-check shadow-sm mb-3 py-3"
+            v-bind:class="{ error: paymentError }"
+          >
             <div class="row">
               <div class="col-2">
                 <input
@@ -68,8 +101,8 @@
             </div>
           </div>
           <div
-            class="form-check shadow-sm mb-5 py-3"
-            v-bind:class="{ 'card-checked': cardChecked }"
+            class="form-check shadow-sm mb-2 py-3"
+            v-bind:class="{ 'card-checked': cardChecked, error: paymentError }"
           >
             <div class="row">
               <div class="col-2">
@@ -90,6 +123,7 @@
                   <div class="radio mt-3">
                     <input
                       class="form-radio"
+                      checked
                       type="radio"
                       name="installments"
                       value="1"
@@ -124,8 +158,15 @@
               </div>
             </div>
           </div>
+          <small
+            v-for="error of v$.paymentMethods.$errors"
+            :key="error.$uid"
+            class="error-text mt-5"
+          >
+            {{ error.$message }}
+          </small>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 mt-5">
           <div class="col-9">
             <div class="progress">
               <div class="progress-bar w-100" role="progressbar"></div>
@@ -133,14 +174,13 @@
           </div>
           <div class="col progress-text">2 de 2</div>
         </div>
-        <router-link to="/register-review">
-          <NextButton
-            buttonText="PRÓXIMO"
-            textColor="white"
-            bgColor="--primary-0"
-            class="col-12"
-          />
-        </router-link>
+        <NextButton
+          buttonText="PRÓXIMO"
+          textColor="white"
+          bgColor="--primary-0"
+          class="col-12"
+          @click="nextPage()"
+        />
       </div>
       <div class="col-6 d-none d-sm-block d-flex">
         <img
@@ -155,13 +195,80 @@
 <script>
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
+
+import useVuelidate from '@vuelidate/core';
+import { required, helpers } from '@vuelidate/validators';
+
 export default {
   components: { NextButton },
   directives: { mask },
+  setup() {
+    return { v$: useVuelidate() };
+  },
   data() {
     return {
+      specialty: '',
+      price: '',
+      paymentMethods: [],
       cardChecked: false,
+      specialtyError: false,
+      priceError: false,
+      paymentError: false,
     };
+  },
+  validations() {
+    return {
+      specialty: {
+        required: helpers.withMessage('Selecione uma especialidade', required),
+      },
+      price: {
+        required: helpers.withMessage(
+          'Insira um valor para a consulta',
+          required
+        ),
+      },
+      paymentMethods: {
+        required: helpers.withMessage(
+          'Selecione no mínimo um método de pagamento',
+          required
+        ),
+      },
+    };
+  },
+  methods: {
+    async nextPage() {
+      const result = await this.v$.$validate();
+      if (!result) {
+        this.verifyFields();
+        return;
+      }
+      this.$router.push('/register-review');
+    },
+    async verifyFields() {
+      this.v$.specialty.$errors[0]
+        ? (this.specialtyError = true)
+        : (this.specialtyError = false);
+
+      this.v$.price.$errors[0]
+        ? (this.priceError = true)
+        : (this.priceError = false);
+
+      this.v$.paymentMethods.$errors[0]
+        ? (this.paymentError = true)
+        : (this.paymentError = false);
+    },
+  },
+  watch: {
+    specialty(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
+    price(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.verifyFields();
+      }
+    },
   },
 };
 </script>
@@ -236,6 +343,15 @@ export default {
   font-weight: bold;
   color: var(--primary-0);
 }
+
+.error-text {
+  color: var(--danger);
+}
+
+.error {
+  border: 1px solid var(--danger);
+}
+
 @media (max-width: 576px) {
   .content {
     border-radius: 25px 25px 0px 0px;
