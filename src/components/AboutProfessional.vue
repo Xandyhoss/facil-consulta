@@ -148,8 +148,6 @@ import { mapMutations, mapGetters } from 'vuex';
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
 
-const verifyCPF = (value, cpd) => value > 1;
-
 export default {
   components: { NextButton, LoadingOverlay },
   directives: { mask },
@@ -170,7 +168,6 @@ export default {
       stateError: false,
       cityError: false,
       loading: false,
-      cpfsArray: [],
     };
   },
   validations() {
@@ -199,7 +196,7 @@ export default {
           'Número de CPF incompleto',
           minLength(14)
         ),
-        verifyExists: helpers.withMessage('CPF já cadastrado', verifyCPF),
+        verifyExists: helpers.withMessage('CPF já cadastrado', this.verifyCPF),
       },
       tel: {
         required: helpers.withMessage(
@@ -223,6 +220,17 @@ export default {
     ...mapGetters('professionals', ['getProfessionalsList']),
   },
   methods: {
+    verifyCPF() {
+      if (this.v$.cpf.$model.length == 14) {
+        const cpfsArray = [];
+        this.getProfessionalsList.map((item) => cpfsArray.push(item.cpf));
+        return !cpfsArray.includes(
+          this.v$.cpf.$model.replace(/[\s.-]*/gim, '')
+        );
+      } else {
+        return true;
+      }
+    },
     ...mapMutations('professionals', {
       setProfessionals: SET_PROFESSIONALS_LIST,
     }),
@@ -279,9 +287,8 @@ export default {
       this.verifyFields();
     },
   },
-  mounted() {
+  beforeMount() {
     this.getProfessionals();
-    this.getProfessionalsList.map((item) => this.cpfsArray.push(item.cpf));
   },
 };
 </script>
