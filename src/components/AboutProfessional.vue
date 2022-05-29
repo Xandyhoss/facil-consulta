@@ -141,9 +141,14 @@
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
+import profissionaisService from '@/services/profissionais';
+import { SET_PROFESSIONALS_LIST } from '@/store/modules/professionals';
+import { mapMutations, mapGetters } from 'vuex';
 
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
+
+const verifyCPF = (value, cpd) => value > 1;
 
 export default {
   components: { NextButton, LoadingOverlay },
@@ -165,6 +170,7 @@ export default {
       stateError: false,
       cityError: false,
       loading: false,
+      cpfsArray: [],
     };
   },
   validations() {
@@ -193,6 +199,7 @@ export default {
           'Número de CPF incompleto',
           minLength(14)
         ),
+        verifyExists: helpers.withMessage('CPF já cadastrado', verifyCPF),
       },
       tel: {
         required: helpers.withMessage(
@@ -212,7 +219,13 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapGetters('professionals', ['getProfessionalsList']),
+  },
   methods: {
+    ...mapMutations('professionals', {
+      setProfessionals: SET_PROFESSIONALS_LIST,
+    }),
     async nextPage() {
       const result = await this.v$.$validate();
       if (!result) {
@@ -237,6 +250,17 @@ export default {
         ? (this.cityError = true)
         : (this.cityError = false);
     },
+    async getProfessionals() {
+      try {
+        this.loading = true;
+        const { data } = await profissionaisService.getProfessionals();
+        this.setProfessionals(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
   },
   watch: {
     name() {
@@ -254,6 +278,10 @@ export default {
     city() {
       this.verifyFields();
     },
+  },
+  mounted() {
+    this.getProfessionals();
+    this.getProfessionalsList.map((item) => this.cpfsArray.push(item.cpf));
   },
 };
 </script>
