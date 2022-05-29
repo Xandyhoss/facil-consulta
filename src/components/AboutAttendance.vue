@@ -2,6 +2,7 @@
   <div
     class="content col-md-10 col-lg-10 pt-5 px-4 px-sm-0 ps-sm-5 pb-5 shadow"
   >
+    <LoadingOverlay v-if="loading" />
     <div class="row col-12">
       <h1 class="title mb-4">Sobre o atendimento</h1>
       <h4 class="subtitle">Detalhes do atendimento</h4>
@@ -24,7 +25,7 @@
               class="option"
               v-for="specialty of specialtiesList"
               :key="specialty.id"
-              :value="specialty.id"
+              :value="specialty"
             >
               {{ specialty.nome }}
             </option>
@@ -47,14 +48,14 @@
               :class="{ error: priceError, 'bg-danger': priceError }"
               >R$</span
             >
-            <input
+            <money3
               name="price"
               type="text"
               class="form-control field"
               :class="{ error: priceError }"
               placeholder="Valor"
               v-money3="config"
-              v-model.lazy="price"
+              v-model="price"
             />
           </div>
           <small
@@ -80,6 +81,7 @@
                   type="checkbox"
                   name="pix"
                   value="pix"
+                  v-model="pixChecked"
                   @input="handlePaymentMethod('pix')"
                 />
               </div>
@@ -99,6 +101,7 @@
                   type="checkbox"
                   name="dinheiro"
                   value="dinheiro"
+                  v-model="moneyChecked"
                   @input="handlePaymentMethod('dinheiro')"
                 />
               </div>
@@ -121,7 +124,7 @@
                   name="cartao"
                   value="cartao"
                   v-model="cardChecked"
-                  @input="handlePaymentMethod('card')"
+                  @input="handlePaymentMethod('cartao')"
                 />
               </div>
               <div class="col-10">
@@ -207,15 +210,25 @@
 
 <script>
 import NextButton from '@/components/NextButton.vue';
+import LoadingOverlay from '@/components/LoadingOverlay.vue';
+import { Money3Component } from 'v-money3';
 import { mask } from 'vue-the-mask';
 import { Money3Directive } from 'v-money3';
 import specialtiesService from '@/services/specialties';
 
+import {
+  SET_SPECIALTY,
+  SET_PRICE,
+  SET_PAYMENT,
+  SET_INSTALLMENTS,
+} from '@/store/modules/registerInfo';
+
 import useVuelidate from '@vuelidate/core';
 import { required, helpers, between } from '@vuelidate/validators';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
-  components: { NextButton },
+  components: { NextButton, LoadingOverlay, money3: Money3Component },
   directives: { mask, money3: Money3Directive },
   setup() {
     return { v$: useVuelidate() };
@@ -227,10 +240,13 @@ export default {
       paymentMethods: [],
       cardInstallments: '1',
       cardChecked: false,
+      pixChecked: false,
+      moneyChecked: false,
       specialtyError: false,
       priceError: false,
       paymentError: false,
       config: {
+        default: '10',
         prefix: '',
         suffix: '',
         thousands: '.',
@@ -239,6 +255,7 @@ export default {
         allowBlank: false,
       },
       specialtiesList: [],
+      loading: false,
     };
   },
   validations() {
@@ -265,13 +282,26 @@ export default {
     };
   },
   methods: {
+    ...mapMutations('registerInfo', {
+      setSpecialty: SET_SPECIALTY,
+      setPrice: SET_PRICE,
+      setPaymentMethods: SET_PAYMENT,
+      setInstallments: SET_INSTALLMENTS,
+    }),
     async nextPage() {
       const result = await this.v$.$validate();
       if (!result) {
         this.verifyFields();
         return;
       }
-      this.$router.push('/register-review');
+      try {
+        this.submitInfo();
+        this.$router.push('/register-review');
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
     },
     async verifyFields() {
       this.v$.specialty.$errors[0]
@@ -305,6 +335,35 @@ export default {
         this.loading = false;
       }
     },
+    redirectIfEmptyFields() {
+      if (this.getName == '') {
+        this.$router.push('/');
+      }
+    },
+    verifyCompletion() {
+      if (this.getSpecialty.nome != '') {
+        this.specialty = this.getSpecialty;
+        this.price = this.getPrice;
+        this.paymentMethods = this.getPaymentMethods;
+        this.cardInstallments = this.getInstallments;
+
+        this.getPaymentMethods.includes('dinheiro')
+          ? (this.moneyChecked = true)
+          : (this.moneyChecked = false);
+        this.getPaymentMethods.includes('pix')
+          ? (this.pixChecked = true)
+          : (this.pixChecked = false);
+        this.getPaymentMethods.includes('cartao')
+          ? (this.cardChecked = true)
+          : (this.cardChecked = false);
+      }
+    },
+    submitInfo() {
+      this.setSpecialty(this.specialty);
+      this.setPrice(this.price);
+      this.setPaymentMethods(this.paymentMethods);
+      this.setInstallments(this.cardInstallments);
+    },
   },
   watch: {
     specialty() {
@@ -321,12 +380,21 @@ export default {
     },
   },
   computed: {
+    ...mapGetters('registerInfo', [
+      'getName',
+      'getSpecialty',
+      'getPrice',
+      'getPaymentMethods',
+      'getInstallments',
+    ]),
     floatPrice: function () {
       return parseFloat(this.price);
     },
   },
   beforeMount() {
     this.getSpecialties();
+    this.redirectIfEmptyFields();
+    this.verifyCompletion();
   },
 };
 </script>

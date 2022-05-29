@@ -71,19 +71,20 @@
             <div class="form-group col-12">
               <label for="state" class="label mb-2">Estado*</label>
               <select
-                id="state"
                 class="form-select field"
                 v-bind:class="{ error: stateError }"
                 name="state"
                 v-model="state"
                 @change="handleCities()"
               >
-                <option disabled value="" class="option">Selecione</option>
+                <option disabled selected value="" class="option">
+                  Selecione
+                </option>
                 <option
                   class="option"
                   v-for="state of this.statesList"
                   :key="state.id"
-                  :value="state.id"
+                  :value="state"
                 >
                   {{ state.nome }}
                 </option>
@@ -111,7 +112,7 @@
                   class="option"
                   v-for="city of citiesList"
                   :key="city.id"
-                  :value="city.id"
+                  :value="city"
                 >
                   {{ city.nome }}
                 </option>
@@ -161,8 +162,17 @@ import profissionaisService from '@/services/profissionais';
 import statesService from '@/services/states';
 import citiesService from '@/services/cities';
 
+import {
+  SET_NAME,
+  SET_CPF,
+  SET_TEL,
+  SET_STATE,
+  SET_CITY,
+} from '@/store/modules/registerInfo';
+
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   components: { NextButton, LoadingOverlay },
@@ -235,8 +245,23 @@ export default {
       },
     };
   },
-  computed: {},
+  computed: {
+    ...mapGetters('registerInfo', [
+      'getName',
+      'getCpf',
+      'getTel',
+      'getState',
+      'getCity',
+    ]),
+  },
   methods: {
+    ...mapMutations('registerInfo', {
+      setName: SET_NAME,
+      setCpf: SET_CPF,
+      setTel: SET_TEL,
+      setState: SET_STATE,
+      setCity: SET_CITY,
+    }),
     verifyCPF() {
       if (this.v$.cpf.$model.length == 14) {
         const cpfsArray = [];
@@ -253,7 +278,15 @@ export default {
       if (!result) {
         return this.verifyFields();
       }
-      this.$router.push('/about-attendance');
+      try {
+        this.loading = true;
+        this.submitInfo();
+        this.$router.push('/about-attendance');
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
     },
     async verifyFields() {
       this.v$.name.$errors[0]
@@ -306,8 +339,24 @@ export default {
       }
     },
     handleCities() {
-      const stateId = document.getElementById('state').value;
-      this.getCities(stateId);
+      this.getCities(this.state.id);
+    },
+    submitInfo() {
+      this.setName(this.name);
+      this.setCpf(this.cpf);
+      this.setTel(this.tel);
+      this.setState(this.state);
+      this.setCity(this.city);
+    },
+    verifyCompletion() {
+      if (this.getName != '') {
+        this.name = this.getName;
+        this.cpf = this.getCpf;
+        this.tel = this.getTel;
+        this.state = this.getState;
+        this.getCities(this.getState.id);
+        this.city = this.getCity;
+      }
     },
   },
   watch: {
@@ -330,6 +379,7 @@ export default {
   beforeMount() {
     this.getProfessionals();
     this.getStates();
+    this.verifyCompletion();
   },
 };
 </script>
