@@ -2,6 +2,7 @@
   <div
     class="content col-md-10 col-lg-10 pt-5 px-4 px-sm-0 ps-sm-5 pb-5 shadow"
   >
+    <LoadingOverlay v-if="loading" />
     <div class="row col-12">
       <h1 class="title mb-4">Sobre o profissional</h1>
       <h4 class="subtitle">Dados do profissional</h4>
@@ -137,6 +138,7 @@
 </template>
 
 <script>
+import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
 
@@ -144,7 +146,7 @@ import useVuelidate from '@vuelidate/core';
 import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
 
 export default {
-  components: { NextButton },
+  components: { NextButton, LoadingOverlay },
   directives: { mask },
 
   setup() {
@@ -162,6 +164,7 @@ export default {
       telError: false,
       stateError: false,
       cityError: false,
+      loading: false,
     };
   },
   validations() {
@@ -236,30 +239,20 @@ export default {
     },
   },
   watch: {
-    name(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.verifyFields();
-      }
+    name() {
+      this.verifyFields();
     },
-    cpf(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.verifyFields();
-      }
+    cpf() {
+      this.verifyFields();
     },
-    tel(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.verifyFields();
-      }
+    tel() {
+      this.verifyFields();
     },
-    state(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.verifyFields();
-      }
+    state() {
+      this.verifyFields();
     },
-    city(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.verifyFields();
-      }
+    city() {
+      this.verifyFields();
     },
   },
 };

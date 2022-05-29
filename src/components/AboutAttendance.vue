@@ -14,7 +14,7 @@
           >
           <select
             class="form-select field"
-            v-bind:class="{ error: specialtyError }"
+            :class="{ error: specialtyError }"
             name="specialty"
             value=""
             v-model="specialty"
@@ -37,21 +37,21 @@
           <div class="input-group">
             <span
               class="input-group-text field-left"
-              v-bind:class="{ error: priceError, 'bg-danger': priceError }"
+              :class="{ error: priceError, 'bg-danger': priceError }"
               >R$</span
             >
             <input
               name="price"
               type="text"
               class="form-control field"
-              v-bind:class="{ error: priceError }"
+              :class="{ error: priceError }"
               placeholder="Valor"
-              v-mask="['##,##', '###,##']"
-              v-model="price"
+              v-money3="config"
+              v-model.lazy="price"
             />
           </div>
           <small
-            v-for="error of v$.price.$errors"
+            v-for="error of v$.floatPrice.$errors"
             :key="error.$uid"
             class="error-text"
           >
@@ -64,7 +64,7 @@
           >
           <div
             class="form-check shadow-sm mb-3 py-3"
-            v-bind:class="{ error: paymentError }"
+            :class="{ error: paymentError }"
           >
             <div class="row">
               <div class="col-2">
@@ -73,6 +73,7 @@
                   type="checkbox"
                   name="pix"
                   value="pix"
+                  @input="handlePaymentMethod('pix')"
                 />
               </div>
               <div class="col-10">
@@ -82,7 +83,7 @@
           </div>
           <div
             class="form-check shadow-sm mb-3 py-3"
-            v-bind:class="{ error: paymentError }"
+            :class="{ error: paymentError }"
           >
             <div class="row">
               <div class="col-2">
@@ -91,6 +92,7 @@
                   type="checkbox"
                   name="dinheiro"
                   value="dinheiro"
+                  @input="handlePaymentMethod('dinheiro')"
                 />
               </div>
               <div class="col-10">
@@ -102,7 +104,7 @@
           </div>
           <div
             class="form-check shadow-sm mb-2 py-3"
-            v-bind:class="{ 'card-checked': cardChecked, error: paymentError }"
+            :class="{ 'card-checked': cardChecked, error: paymentError }"
           >
             <div class="row">
               <div class="col-2">
@@ -112,6 +114,7 @@
                   name="cartao"
                   value="cartao"
                   v-model="cardChecked"
+                  @input="handlePaymentMethod('card')"
                 />
               </div>
               <div class="col-10">
@@ -195,13 +198,14 @@
 <script>
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
+import { Money3Directive } from 'v-money3';
 
 import useVuelidate from '@vuelidate/core';
-import { required, helpers } from '@vuelidate/validators';
+import { required, helpers, between } from '@vuelidate/validators';
 
 export default {
   components: { NextButton },
-  directives: { mask },
+  directives: { mask, money3: Money3Directive },
   setup() {
     return { v$: useVuelidate() };
   },
@@ -214,6 +218,14 @@ export default {
       specialtyError: false,
       priceError: false,
       paymentError: false,
+      config: {
+        prefix: '',
+        suffix: '',
+        thousands: '.',
+        decimal: ',',
+        precision: 2,
+        allowBlank: false,
+      },
     };
   },
   validations() {
@@ -221,10 +233,14 @@ export default {
       specialty: {
         required: helpers.withMessage('Selecione uma especialidade', required),
       },
-      price: {
+      floatPrice: {
         required: helpers.withMessage(
           'Insira um valor para a consulta',
           required
+        ),
+        betweenValue: helpers.withMessage(
+          'O valor precisa estar entre R$30,00 e R$ 350,00',
+          between(30, 350)
         ),
       },
       paymentMethods: {
@@ -249,7 +265,7 @@ export default {
         ? (this.specialtyError = true)
         : (this.specialtyError = false);
 
-      this.v$.price.$errors[0]
+      this.v$.floatPrice.$errors[0]
         ? (this.priceError = true)
         : (this.priceError = false);
 
@@ -257,17 +273,32 @@ export default {
         ? (this.paymentError = true)
         : (this.paymentError = false);
     },
-  },
-  watch: {
-    specialty(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.verifyFields();
+    handlePaymentMethod(method) {
+      const indexOfMethod = this.paymentMethods.indexOf(method);
+      if (indexOfMethod === -1) {
+        this.paymentMethods.push(method);
+      } else {
+        this.paymentMethods.splice(indexOfMethod, 1);
       }
     },
-    price(newValue, oldValue) {
-      if (newValue !== oldValue) {
+  },
+  watch: {
+    specialty() {
+      this.verifyFields();
+    },
+    price() {
+      this.verifyFields();
+    },
+    paymentMethods: {
+      handler() {
         this.verifyFields();
-      }
+      },
+      deep: true,
+    },
+  },
+  computed: {
+    floatPrice: function () {
+      return parseFloat(this.price);
     },
   },
 };
