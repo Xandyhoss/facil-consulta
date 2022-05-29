@@ -35,8 +35,22 @@
 
 <script>
 import NextButton from '@/components/NextButton.vue';
+import { mapGetters } from 'vuex';
 export default {
   components: { NextButton },
+  computed: {
+    ...mapGetters('registerInfo', ['getName']),
+  },
+  methods: {
+    redirectIfEmptyFields() {
+      if (this.getName == '') {
+        this.$router.push('/');
+      }
+    },
+  },
+  beforeMount() {
+    this.redirectIfEmptyFields();
+  },
 };
 </script>
 
