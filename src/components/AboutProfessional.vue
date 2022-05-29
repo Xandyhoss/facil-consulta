@@ -71,13 +71,22 @@
             <div class="form-group col-12">
               <label for="state" class="label mb-2">Estado*</label>
               <select
+                id="state"
                 class="form-select field"
                 v-bind:class="{ error: stateError }"
                 name="state"
                 v-model="state"
+                @change="handleCities()"
               >
                 <option disabled value="" class="option">Selecione</option>
-                <option class="option">Estado</option>
+                <option
+                  class="option"
+                  v-for="state of this.statesList"
+                  :key="state.id"
+                  :value="state.id"
+                >
+                  {{ state.nome }}
+                </option>
               </select>
               <small
                 v-for="error of v$.state.$errors"
@@ -98,7 +107,14 @@
                 v-model="city"
               >
                 <option disabled value="" class="option">Selecione</option>
-                <option class="option">Cidade</option>
+                <option
+                  class="option"
+                  v-for="city of citiesList"
+                  :key="city.id"
+                  :value="city.id"
+                >
+                  {{ city.nome }}
+                </option>
               </select>
               <small
                 v-for="error of v$.city.$errors"
@@ -142,8 +158,8 @@ import LoadingOverlay from '@/components/LoadingOverlay.vue';
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
 import profissionaisService from '@/services/profissionais';
-import { SET_PROFESSIONALS_LIST } from '@/store/modules/professionals';
-import { mapMutations, mapGetters } from 'vuex';
+import statesService from '@/services/states';
+import citiesService from '@/services/cities';
 
 import useVuelidate from '@vuelidate/core';
 import { required, minLength, maxLength, helpers } from '@vuelidate/validators';
@@ -168,6 +184,9 @@ export default {
       stateError: false,
       cityError: false,
       loading: false,
+      citiesList: [],
+      statesList: [],
+      professionalsList: [],
     };
   },
   validations() {
@@ -216,14 +235,12 @@ export default {
       },
     };
   },
-  computed: {
-    ...mapGetters('professionals', ['getProfessionalsList']),
-  },
+  computed: {},
   methods: {
     verifyCPF() {
       if (this.v$.cpf.$model.length == 14) {
         const cpfsArray = [];
-        this.getProfessionalsList.map((item) => cpfsArray.push(item.cpf));
+        this.professionalsList.map((item) => cpfsArray.push(item.cpf));
         return !cpfsArray.includes(
           this.v$.cpf.$model.replace(/[\s.-]*/gim, '')
         );
@@ -231,9 +248,6 @@ export default {
         return true;
       }
     },
-    ...mapMutations('professionals', {
-      setProfessionals: SET_PROFESSIONALS_LIST,
-    }),
     async nextPage() {
       const result = await this.v$.$validate();
       if (!result) {
@@ -262,12 +276,38 @@ export default {
       try {
         this.loading = true;
         const { data } = await profissionaisService.getProfessionals();
-        this.setProfessionals(data);
+        this.professionalsList = data;
       } catch (error) {
         console.log(error);
       } finally {
         this.loading = false;
       }
+    },
+    async getStates() {
+      try {
+        this.loading = true;
+        const { data } = await statesService.getStates();
+        this.statesList = data;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async getCities(estadoId) {
+      try {
+        this.loading = true;
+        const { data } = await citiesService.getCities(estadoId);
+        this.citiesList = data;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    handleCities() {
+      const stateId = document.getElementById('state').value;
+      this.getCities(stateId);
     },
   },
   watch: {
@@ -289,6 +329,7 @@ export default {
   },
   beforeMount() {
     this.getProfessionals();
+    this.getStates();
   },
 };
 </script>

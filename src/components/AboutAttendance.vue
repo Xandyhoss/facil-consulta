@@ -20,7 +20,14 @@
             v-model="specialty"
           >
             <option disabled value="" class="option">Selecione</option>
-            <option class="option">Especialidade</option>
+            <option
+              class="option"
+              v-for="specialty of specialtiesList"
+              :key="specialty.id"
+              :value="specialty.id"
+            >
+              {{ specialty.nome }}
+            </option>
           </select>
           <small
             v-for="error of v$.specialty.$errors"
@@ -130,6 +137,7 @@
                       type="radio"
                       name="installments"
                       value="1"
+                      v-model="cardInstallments"
                     />
                     <label class="radio-label ms-2" for="installments">
                       1x, sem juros
@@ -141,6 +149,7 @@
                       type="radio"
                       name="installments"
                       value="2"
+                      v-model="cardInstallments"
                     />
                     <label class="radio-label ms-2" for="installments">
                       2x, sem juros
@@ -152,6 +161,7 @@
                       type="radio"
                       name="installments"
                       value="3"
+                      v-model="cardInstallments"
                     />
                     <label class="radio-label ms-2" for="installments">
                       3x, sem juros
@@ -199,6 +209,7 @@
 import NextButton from '@/components/NextButton.vue';
 import { mask } from 'vue-the-mask';
 import { Money3Directive } from 'v-money3';
+import specialtiesService from '@/services/specialties';
 
 import useVuelidate from '@vuelidate/core';
 import { required, helpers, between } from '@vuelidate/validators';
@@ -214,6 +225,7 @@ export default {
       specialty: '',
       price: '',
       paymentMethods: [],
+      cardInstallments: '1',
       cardChecked: false,
       specialtyError: false,
       priceError: false,
@@ -226,6 +238,7 @@ export default {
         precision: 2,
         allowBlank: false,
       },
+      specialtiesList: [],
     };
   },
   validations() {
@@ -281,6 +294,17 @@ export default {
         this.paymentMethods.splice(indexOfMethod, 1);
       }
     },
+    async getSpecialties() {
+      try {
+        this.loading = true;
+        const { data } = await specialtiesService.getSpecialties();
+        this.specialtiesList = data;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
   },
   watch: {
     specialty() {
@@ -300,6 +324,9 @@ export default {
     floatPrice: function () {
       return parseFloat(this.price);
     },
+  },
+  beforeMount() {
+    this.getSpecialties();
   },
 };
 </script>
