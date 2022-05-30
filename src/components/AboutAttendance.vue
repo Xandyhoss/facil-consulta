@@ -246,7 +246,6 @@ export default {
       priceError: false,
       paymentError: false,
       config: {
-        default: '10',
         prefix: '',
         suffix: '',
         thousands: '.',

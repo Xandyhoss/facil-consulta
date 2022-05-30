@@ -7,33 +7,26 @@
     </div>
     <div class="row mt-4">
       <div class="col">
+        <TextCell paramTitle="Nome completo" :param="nome" />
+        <TextCell paramTitle="CPF" :param="cpf" />
+        <TextCell paramTitle="Número de celular ou telefone" :param="tel" />
+        <TextCell paramTitle="Estado/Cidade" :param="`${state} - ${city}`" />
+        <TextCell paramTitle="Especialidade principal" :param="specialty" />
         <TextCell
-          paramTitle="Nome completo"
-          param="Alexandre Harrison Colares de Souza"
+          paramTitle="Preço da consulta"
+          :param="`R$ ${price.replace(/\./g, ',')}`"
         />
-        <TextCell paramTitle="CPF" param="700.758.716-02" />
-        <TextCell
-          paramTitle="Número de celular ou telefone"
-          param="(73)99101-3527"
-        />
-        <TextCell
-          paramTitle="Estado/Cidade"
-          param="Teixeira de Freitas - Bahia"
-        />
-        <TextCell paramTitle="Especialidade principal" param="Cardiologia" />
-        <TextCell paramTitle="Preço da consulta" param="R$ 200,00" />
         <TextCell
           paramTitle="Formas de pagamento da consulta"
-          param="Dinheiro, Pix"
+          :param="paymentMethods.toString().replace(/\,/g, ' | ')"
         />
-        <router-link to="/register-concluded">
-          <NextButton
-            buttonText="CADASTRAR PROFISSIONAL"
-            bgColor="--cta-0"
-            textColor="black"
-            class="col-12"
-          />
-        </router-link>
+        <NextButton
+          buttonText="CADASTRAR PROFISSIONAL"
+          bgColor="--cta-0"
+          textColor="black"
+          class="col-12"
+          @click="nextPage()"
+        />
         <router-link to="/" class="text-decoration-none">
           <div class="edit-register col-12 mt-4">Editar cadastro</div>
         </router-link>
@@ -53,19 +46,65 @@ import NextButton from '@/components/NextButton.vue';
 import TextCell from '@/components/TextCell.vue';
 import { mapGetters } from 'vuex';
 export default {
+  data() {
+    return {
+      nome: '',
+      cpf: '',
+      tel: '',
+      state: {},
+      city: {},
+      specialty: {},
+      price: '',
+      paymentMethods: [],
+      installments: '',
+    };
+  },
   components: { NextButton, TextCell },
   computed: {
-    ...mapGetters('registerInfo', ['getName']),
+    ...mapGetters('registerInfo', [
+      'getName',
+      'getCpf',
+      'getTel',
+      'getState',
+      'getCity',
+      'getSpecialty',
+      'getPrice',
+      'getPaymentMethods',
+      'getInstallments',
+    ]),
   },
   methods: {
+    nextPage() {
+      this.$router.push('/register-concluded');
+    },
     redirectIfEmptyFields() {
       if (this.getName == '') {
         this.$router.push('/');
       }
     },
+    fetchData() {
+      this.nome = this.getName;
+      this.cpf = this.getCpf;
+      this.tel = this.getTel;
+      this.state = this.getState.nome;
+      this.city = this.getCity.nome;
+      this.specialty = this.getSpecialty.nome;
+      this.price = this.getPrice;
+      this.installments = this.getInstallments;
+      this.getPaymentMethods.map((method) => {
+        method == 'dinheiro' ? this.paymentMethods.push('Dinheiro') : null;
+        method == 'pix' ? this.paymentMethods.push('Pix') : null;
+        method == 'cartao'
+          ? this.paymentMethods.push(
+              `Cartão de crédito - Parcelamento em ${this.installments}x sem juros`
+            )
+          : null;
+      });
+    },
   },
   beforeMount() {
     this.redirectIfEmptyFields();
+    this.fetchData();
   },
 };
 </script>

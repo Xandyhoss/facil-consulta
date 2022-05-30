@@ -35,13 +35,15 @@
 
 <script>
 import NextButton from '@/components/NextButton.vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
+import { RESET_STATE_DEFAULT } from '@/store/modules/registerInfo';
 export default {
   components: { NextButton },
   computed: {
     ...mapGetters('registerInfo', ['getName']),
   },
   methods: {
+    ...mapMutations('registerInfo', { resetState: RESET_STATE_DEFAULT }),
     redirectIfEmptyFields() {
       if (this.getName == '') {
         this.$router.push('/');
@@ -50,6 +52,9 @@ export default {
   },
   beforeMount() {
     this.redirectIfEmptyFields();
+  },
+  beforeUnmount() {
+    this.resetState();
   },
 };
 </script>

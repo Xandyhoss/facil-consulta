@@ -7,6 +7,7 @@ const SET_SPECIALTY = 'SET_SPECIALTY';
 const SET_PRICE = 'SET_PRICE';
 const SET_PAYMENT = 'SET_PAYMENT';
 const SET_INSTALLMENTS = 'SET_INSTALLMENTS';
+const RESET_STATE_DEFAULT = 'RESET_STATE_DEFAULT';
 
 export {
   SET_NAME,
@@ -18,19 +19,24 @@ export {
   SET_PRICE,
   SET_PAYMENT,
   SET_INSTALLMENTS,
+  RESET_STATE_DEFAULT,
 };
 
-const state = {
-  name: '',
-  cpf: '',
-  tel: '',
-  state: { nome: '', id: '' },
-  city: { nome: '', id: '' },
-  specialty: { nome: '', id: '' },
-  price: '',
-  paymentMethods: [],
-  installments: '',
+const getDefaultState = () => {
+  return {
+    name: '',
+    cpf: '',
+    tel: '',
+    state: { nome: '', id: '' },
+    city: { nome: '', id: '' },
+    specialty: { nome: '', id: '' },
+    price: '',
+    paymentMethods: [],
+    installments: '',
+  };
 };
+
+const state = getDefaultState();
 
 const mutations = {
   [SET_NAME]: (state, name) => {
@@ -59,6 +65,9 @@ const mutations = {
   },
   [SET_INSTALLMENTS]: (state, installments) => {
     state.installments = installments;
+  },
+  [RESET_STATE_DEFAULT]: (state) => {
+    Object.assign(state, getDefaultState());
   },
 };
 

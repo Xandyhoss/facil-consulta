@@ -1,13 +1,19 @@
 <template>
   <div class="text-group mb-4">
-    <p class="param-title mb-2">{{ paramTitle }}</p>
-    <p class="param">{{ param }}</p>
+    <p class="param-title mb-2">{{ title }}</p>
+    <p class="param">{{ info }}</p>
   </div>
 </template>
 
 <script>
 export default {
   props: ['paramTitle', 'param'],
+  data() {
+    return {
+      title: this.paramTitle,
+      info: this.param,
+    };
+  },
 };
 </script>
 
