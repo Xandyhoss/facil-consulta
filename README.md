@@ -1,5 +1,9 @@
 # Teste Front-End Fácil Consulta
 
+![Teste Fácil Consulta Desktop](https://imgur.com/a/750dOan)
+![Teste Fácil Consulta Desktop](https://imgur.com/a/KaoEp4d)
+
+
 ## Instalando dependências:
 
 ```
