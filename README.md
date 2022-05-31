@@ -1,8 +1,8 @@
 # Teste Front-End Fácil Consulta
 
 <p float="left">
-  <img src="https://i.imgur.com/gpvqdoY.png" heigth="300" title="hover text">
-  <img src="https://i.imgur.com/W0dnsVu.png" heigth="300" alt="accessibility text">
+  <img src="https://i.imgur.com/gpvqdoY.png" width="300" title="hover text">
+  <img src="https://i.imgur.com/W0dnsVu.png" width="300" alt="accessibility text">
 </p>
 
 ![Teste Fácil Consulta Desktop](https://i.imgur.com/gpvqdoY.png)
