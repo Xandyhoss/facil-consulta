@@ -2,7 +2,7 @@
 
 <p float="left">
   <img src="https://i.imgur.com/gpvqdoY.png" width="600" title="hover text">
-  <img src="https://i.imgur.com/W0dnsVu.png" width="280" alt="accessibility text">
+  <img src="https://i.imgur.com/W0dnsVu.png" width="240" alt="accessibility text">
 </p>
 
 
