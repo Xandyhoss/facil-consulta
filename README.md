@@ -1,6 +1,6 @@
 # Teste Front-End Fácil Consulta
 
-<p align="center">
+<p float="left">
   <img src="https://i.imgur.com/gpvqdoY.png" heigth="300" title="hover text">
   <img src="https://i.imgur.com/W0dnsVu.png" heigth="300" alt="accessibility text">
 </p>
